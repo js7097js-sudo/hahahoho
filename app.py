@@ -2,7 +2,7 @@ import streamlit as st
 import streamlit.components.v1 as components
 
 st.set_page_config(
-    page_title="운빨존많겜: 마스터 디펜스",
+    page_title="운빨존많겜: 3D 액션 디펜스",
     page_icon="🎲",
     layout="wide",
     initial_sidebar_state="collapsed",
@@ -24,7 +24,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# 60FPS 레퍼런스 스타일 고품질 아바타 & 타일 터치 조합 엔진
+# HTML5 3D Isometric Shading Canvas Engine
 html_game_code = """
 <!DOCTYPE html>
 <html lang="ko">
@@ -147,7 +147,7 @@ html_game_code = """
     </div>
 
     <div id="ui-panel">
-        <h2 style="text-align: center; color: #ffcc00; font-size: 18px;">🎲 운빨존많겜: 마스터 디펜스</h2>
+        <h2 style="text-align: center; color: #ffcc00; font-size: 18px;">🎲 3D 운빨존많겜 디펜스</h2>
         
         <div class="status-bar">
             <div class="status-item"><span class="status-label">보유 골드</span><span id="ui-gold" class="status-value">400 G</span></div>
@@ -190,24 +190,24 @@ html_game_code = """
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-// --- [유닛 데이터베이스: 레퍼런스 스타일 고품질 아바타 및 무기 디자인] ---
+// --- [유닛 데이터베이스: 3D 아바타 스킨 및 맞춤형 공격 연출 설정] ---
 const UNITS_DB = {
     common: [
         { id: "c1", name: "돌멩이 도끼병", atk: 18, skin: "axe_boy", color: "#a0a0a0" },
         { id: "c2", name: "견습 꼬마궁수", atk: 20, skin: "archer", color: "#d2b48c" },
-        { id: "c3", name: "초록 슬라임펫", atk: 15, skin: "slime", color: "#2ecc71" },
+        { id: "c3", name: "초록 3D 슬라임", atk: 15, skin: "cube_slime", color: "#2ecc71" },
         { id: "c4", name: "단검 도적", atk: 22, skin: "rogue", color: "#e67e22" }
     ],
     rare: [
         { id: "r1", name: "화염 마법사", atk: 70, skin: "wizard", color: "#ff6b6b" },
-        { id: "r2", name: "철갑 라이거 기사", atk: 65, skin: "knight", color: "#3498db" },
+        { id: "r2", name: "철갑 기사", atk: 65, skin: "knight", color: "#3498db" },
         { id: "r3", name: "흑표범 암살자", atk: 80, skin: "assassin", color: "#2c3e50" },
-        { id: "r4", name: "번개 사제", atk: 75, skin: "priest", color: "#f1c40f" }
+        { id: "r4", name: "번개 사제", atk: 75, skin: "lightning_priest", color: "#f1c40f" }
     ],
     epic: [
         { id: "e1", name: "서리여왕 엘프", atk: 260, skin: "ice_queen", color: "#00d2d3" },
-        { id: "e2", name: "광전사 울버린", atk: 300, skin: "berserker", color: "#ff5252" },
-        { id: "e3", name: "메카 사이보그 사자", atk: 280, skin: "mecha", color: "#ff9f43" },
+        { id: "e2", name: "광전사", atk: 300, skin: "berserker", color: "#ff5252" },
+        { id: "e3", name: "메카 사이보그", atk: 280, skin: "mecha", color: "#ff9f43" },
         { id: "e4", name: "암흑 소울 흑마법사", atk: 250, skin: "dark_mage", color: "#8854d0" }
     ],
     legendary: [
@@ -218,7 +218,7 @@ const UNITS_DB = {
     ],
     mythic: [
         { id: "m1", name: "🔥 혼돈 종말자", atk: 4800, skin: "myth_dragon", color: "#ff0055", recipeReq: "천공 드래곤 + 도끼병" },
-        { id: "m2", name: "⚡ 제우스 현신", atk: 5300, skin: "myth_zeus", color: "#ffff00", recipeReq: "지옥 아수라왕 + 화염 마법사" },
+        { id: "m2", name: "⚡ 제우스 현신", atk: 5300, skin: "myth_zeus", color: "#ffff00", recipeReq: "지옥 아수라왕 + 번개 사제" },
         { id: "m3", name: "❄️ 절대영도 여신", atk: 4600, skin: "myth_queen", color: "#00ffff", recipeReq: "시간 수호자 + 서리여왕" },
         { id: "m4", name: "💀 심연의 군주", atk: 5800, skin: "myth_lord", color: "#9b59b6", recipeReq: "빛의 성기사 + 광전사" },
         { id: "m5", name: "🌟 창조의 스피릿", atk: 6800, skin: "myth_spirit", color: "#ffffff", recipeReq: "천공 드래곤 + 지옥 아수라왕" }
@@ -239,6 +239,7 @@ let gameState = {
     board: new Array(20).fill(null),
     enemies: [],
     projectiles: [],
+    lightningEffects: [], // 번개 사제 전용 번개 이펙트
     meleeEffects: [],
     spawnTimer: 0,
     lastTime: performance.now()
@@ -263,6 +264,7 @@ function initGame() {
     gameState.board = new Array(20).fill(null);
     gameState.enemies = [];
     gameState.projectiles = [];
+    gameState.lightningEffects = [];
     gameState.meleeEffects = [];
     gameState.rates = { common: 70.0, rare: 22.0, epic: 6.0, legendary: 2.0 };
     gameState.upgrades = { common: 1, rare: 1, epic: 1, legendary: 1 };
@@ -295,11 +297,9 @@ function spawnEnemy() {
     });
 }
 
-// --- [자동 3마리 뭉치기 뽑기 시스템] ---
 function drawUnit() {
     if (gameState.gold < gameState.gachaCost) { alert("❌ 골드가 부족합니다!"); return; }
     
-    // 무작위 등급 결정
     const rand = Math.random() * 100;
     let grade = "common";
     if (rand < gameState.rates.legendary) grade = "legendary";
@@ -308,14 +308,12 @@ function drawUnit() {
 
     const template = UNITS_DB[grade][Math.floor(Math.random() * UNITS_DB[grade].length)];
 
-    // 1. 이미 필드에 같은 종류(id)의 유닛이 존재하고, 그 칸의 count가 3 미만이면 자동 합류!
     let targetIdx = gameState.board.findIndex(slot => slot && slot.id === template.id && slot.count < 3);
 
     if (targetIdx !== -1) {
         gameState.gold -= gameState.gachaCost;
         gameState.board[targetIdx].count++;
     } else {
-        // 2. 같은 유닛이 없거나 3마리 꽉 찼다면 빈 칸 찾기
         let emptyIdx = gameState.board.findIndex(slot => slot === null);
         if (emptyIdx === -1) { alert("⚠️ 필드 20칸이 가득 찼습니다!"); return; }
         gameState.gold -= gameState.gachaCost;
@@ -331,42 +329,33 @@ function drawUnit() {
     updateUI();
 }
 
-// --- [타일 클릭 조합 시스템 (3마리 뭉친 칸에서 조합)] ---
 function handleTileClick(idx) {
     const slot = gameState.board[idx];
     if (!slot) return;
 
     if (slot.count < 3) {
-        alert("⚠️ 같은 유닛이 3마리 뭉쳐야 조합할 수 있습니다! (현재 " + slot.count + "마리)");
+        alert("⚠️ 같은 유닛이 3마리 뭉쳐야 조합할 수 있습니다!");
         return;
     }
 
-    // 등급별 자동 상위 조합
     if (slot.grade === "common") {
-        // 일반 3마리 ➔ 무작위 희귀
         const template = UNITS_DB.rare[Math.floor(Math.random() * UNITS_DB.rare.length)];
         gameState.board[idx] = { ...template, grade: "rare", count: 1, lastAttack: 0, attackSpeed: 1.3, animTimer: 0 };
         alert("✨ 일반 3마리 조합 성공! 희귀 등급 획득!");
     } else if (slot.grade === "rare") {
-        // 희귀 3마리 ➔ 무작위 영웅
         const template = UNITS_DB.epic[Math.floor(Math.random() * UNITS_DB.epic.length)];
         gameState.board[idx] = { ...template, grade: "epic", count: 1, lastAttack: 0, attackSpeed: 1.3, animTimer: 0 };
         alert("🔥 희귀 3마리 조합 성공! 영웅 등급 획득!");
     } else if (slot.grade === "epic") {
-        // 영웅 3마리 ➔ 무작위 전설 (요청사항 반영)
         const template = UNITS_DB.legendary[Math.floor(Math.random() * UNITS_DB.legendary.length)];
         gameState.board[idx] = { ...template, grade: "legendary", count: 1, lastAttack: 0, attackSpeed: 1.5, animTimer: 0 };
         alert("👑 영웅 3마리 조합 성공! 전설 등급 강림!");
-    } else {
-        alert("이 유닛은 더 이상 일반 조합을 할 수 없습니다.");
     }
     updateUI();
 }
 
-// 신화 전용 조합 (공방 버튼)
 function summonMythicRecipe(mIndex) {
     const mythTemplate = UNITS_DB.mythic[mIndex];
-    // 간단 검증: 필드에 전설 유닛이 1개 이상 있으면 소환 가능
     const legIdx = gameState.board.findIndex(s => s && s.grade === "legendary");
     if (legIdx === -1) { alert("⚠️ 재료가 될 [전설 유닛]이 필드에 필요합니다!"); return; }
 
@@ -423,7 +412,7 @@ function upgradeClass(grade) {
     updateUI();
 }
 
-// --- [60FPS 게임 엔진 루프] ---
+// --- [60FPS 메인 루프] ---
 function gameLoop(now) {
     const rawDt = (now - gameState.lastTime) / 1000;
     gameState.lastTime = now;
@@ -476,24 +465,37 @@ function updateGame(dt) {
 
             if (closestEnemy) {
                 slot.lastAttack = currentTime;
-                slot.animTimer = 0.35;
+                slot.animTimer = 0.35; // 공격 애니메이션 작동
                 const upLvl = gameState.upgrades[slot.grade] || 1;
                 const finalAtk = slot.atk * slot.count * (1 + (upLvl - 1) * 0.3);
 
                 const ex = TRACK.centerX + Math.cos(closestEnemy.angle) * TRACK.radius;
                 const ey = TRACK.centerY + Math.sin(closestEnemy.angle) * TRACK.radius;
 
-                if (slot.skin === "axe_boy" || slot.skin === "rogue" || slot.skin === "knight" || slot.skin === "assassin" || slot.skin === "berserker" || slot.skin === "asura") {
-                    gameState.meleeEffects.push({ x: ex, y: ey, type: "slash", color: slot.color, life: 0.25 });
+                // 유닛별 특수 공격 매핑
+                if (slot.skin === "lightning_priest" || slot.skin === "myth_zeus") {
+                    // 번개 사제: 적 머리 위 하늘에서 번개가 떨어지는 직격 타격 연출!
+                    gameState.lightningEffects.push({ x: ex, y: ey, life: 0.3 });
+                    closestEnemy.hp -= finalAtk;
+                    checkEnemyDeath(closestEnemy);
+                } else if (slot.skin === "axe_boy" || slot.skin === "rogue" || slot.skin === "knight" || slot.skin === "assassin" || slot.skin === "berserker") {
+                    // 근접 유닛 참격
+                    gameState.meleeEffects.push({ x: ex, y: ey, life: 0.25 });
+                    closestEnemy.hp -= finalAtk;
+                    checkEnemyDeath(closestEnemy);
+                } else if (slot.skin === "cube_slime") {
+                    // 슬라임: 충격파 데미지
                     closestEnemy.hp -= finalAtk;
                     checkEnemyDeath(closestEnemy);
                 } else {
+                    // 원거리 투사체
                     gameState.projectiles.push({ x: ux, y: uy, target: closestEnemy, damage: finalAtk, color: slot.color, speed: 700 });
                 }
             }
         }
     });
 
+    // 투사체 이동
     for (let i = gameState.projectiles.length - 1; i >= 0; i--) {
         const p = gameState.projectiles[i];
         if (!gameState.enemies.includes(p.target)) { gameState.projectiles.splice(i, 1); continue; }
@@ -513,6 +515,11 @@ function updateGame(dt) {
         }
     }
 
+    // 이펙트 타이머 업데이트
+    for (let i = gameState.lightningEffects.length - 1; i >= 0; i--) {
+        gameState.lightningEffects[i].life -= dt;
+        if (gameState.lightningEffects[i].life <= 0) gameState.lightningEffects.splice(i, 1);
+    }
     for (let i = gameState.meleeEffects.length - 1; i >= 0; i--) {
         gameState.meleeEffects[i].life -= dt;
         if (gameState.meleeEffects[i].life <= 0) gameState.meleeEffects.splice(i, 1);
@@ -529,42 +536,134 @@ function checkEnemyDeath(enemy) {
     }
 }
 
-// --- [고급 아바타 및 일러스트 렌더러] ---
-function drawUnitAvatar(ctx, unit, x, y, size) {
+// --- [3D Isometric Shading Graphics Engine] ---
+function drawCube3D(ctx, x, y, sizeX, sizeY, sizeZ, colorTop, colorLeft, colorRight) {
     ctx.save();
-    ctx.translate(x + size/2, y + size/2);
+    ctx.translate(x, y);
 
-    let jumpOffset = 0;
+    // 윗면 (Top)
+    ctx.fillStyle = colorTop;
+    ctx.beginPath();
+    ctx.moveTo(0, -sizeZ);
+    ctx.lineTo(sizeX/2, -sizeZ + sizeY/2);
+    ctx.lineTo(0, -sizeZ + sizeY);
+    ctx.lineTo(-sizeX/2, -sizeZ + sizeY/2);
+    ctx.closePath();
+    ctx.fill();
+
+    // 좌측면 (Left)
+    ctx.fillStyle = colorLeft;
+    ctx.beginPath();
+    ctx.moveTo(-sizeX/2, -sizeZ + sizeY/2);
+    ctx.lineTo(0, -sizeZ + sizeY);
+    ctx.lineTo(0, sizeY);
+    ctx.lineTo(-sizeX/2, sizeY/2);
+    ctx.closePath();
+    ctx.fill();
+
+    // 우측면 (Right)
+    ctx.fillStyle = colorRight;
+    ctx.beginPath();
+    ctx.moveTo(0, -sizeZ + sizeY);
+    ctx.lineTo(sizeX/2, -sizeZ + sizeY/2);
+    ctx.lineTo(sizeX/2, sizeY/2);
+    ctx.lineTo(0, sizeY);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.restore();
+}
+
+// --- [유닛 3D 2등신 아바타 렌더러] ---
+function draw3DUnit(ctx, unit, x, y, size) {
+    ctx.save();
+    const cx = x + size/2;
+    const cy = y + size/2 + 10;
+    ctx.translate(cx, cy);
+
+    // 공격 동작 반응 점프
+    let jumpY = 0;
+    let mouthOpen = false;
     if (unit.animTimer > 0) {
-        jumpOffset = -6 * Math.sin((0.35 - unit.animTimer) / 0.35 * Math.PI);
-        ctx.translate(0, jumpOffset);
+        jumpY = -12 * Math.sin((0.35 - unit.animTimer) / 0.35 * Math.PI);
+        mouthOpen = true;
+        ctx.translate(0, jumpY);
     }
 
-    // 등급별 아라
-    ctx.fillStyle = unit.color + "33";
-    ctx.beginPath(); ctx.arc(0, 0, size/2 - 2, 0, Math.PI*2); ctx.fill();
+    // 그림자
+    ctx.fillStyle = "rgba(0,0,0,0.3)";
+    ctx.beginPath();
+    ctx.ellipse(0, 10 - jumpY, 16, 6, 0, 0, Math.PI*2);
+    ctx.fill();
 
-    // 캐릭터 본체 (사람/영웅형 외형)
-    ctx.fillStyle = unit.color;
-    ctx.beginPath(); ctx.arc(0, 0, 18, 0, Math.PI*2); ctx.fill();
-    ctx.strokeStyle = "#fff"; ctx.lineWidth = 2; ctx.stroke();
+    if (unit.skin === "cube_slime") {
+        // [초록 3D 직육면체 큐브 슬라임]
+        drawCube3D(ctx, 0, 0, 28, 16, 20, "#55efc4", "#00b894", "#008a6c");
+        // 입 벌리기 표현
+        ctx.fillStyle = "#000";
+        if (mouthOpen) {
+            ctx.fillRect(-6, -10, 12, 8); // 공격 시 큰 입
+            ctx.fillStyle = "#ff7675"; ctx.fillRect(-3, -6, 6, 4); // 혀
+        } else {
+            ctx.fillRect(-4, -8, 8, 3);
+        }
+        // 눈
+        ctx.fillStyle = "#000";
+        ctx.fillRect(-7, -16, 3, 3); ctx.fillRect(4, -16, 3, 3);
 
-    // 얼굴 및 모자 디자인
-    ctx.fillStyle = "#fff";
-    ctx.fillRect(-5, -4, 4, 4); ctx.fillRect(2, -4, 4, 4);
-    ctx.fillStyle = "#000";
-    ctx.fillRect(-4, -3, 2, 2); ctx.fillRect(3, -3, 2, 2);
+    } else if (unit.skin === "lightning_priest") {
+        // [번개 사제: 할아버지 2등신 + 팔다리 + 사제복 + 마법책]
+        // 다리
+        drawCube3D(ctx, -5, 8, 6, 4, 8, "#dfe6e9", "#b2bec3", "#636e72");
+        drawCube3D(ctx, 5, 8, 6, 4, 8, "#dfe6e9", "#b2bec3", "#636e72");
 
-    // 무기/장비 렌더링
-    if (unit.skin === "axe_boy" || unit.skin === "berserker") {
-        ctx.fillStyle = "#8b4513"; ctx.fillRect(10, -12, 3, 16); // 도끼 자루
-        ctx.fillStyle = "#ccc"; ctx.fillRect(8, -16, 8, 6); // 도끼날
-    } else if (unit.skin === "archer") {
-        ctx.strokeStyle = "#deb887"; ctx.lineWidth = 3;
-        ctx.beginPath(); ctx.arc(0, 0, 14, -Math.PI/2, Math.PI/2); ctx.stroke();
-    } else if (unit.skin === "wizard" || unit.skin === "dark_mage") {
-        ctx.fillStyle = "#9b59b6";
-        ctx.beginPath(); ctx.moveTo(0, -26); ctx.lineTo(-12, -12); ctx.lineTo(12, -12); ctx.fill();
+        // 몸통 (번개 문양이 새겨진 노란/파란 사제복)
+        drawCube3D(ctx, 0, 0, 18, 10, 16, "#f1c40f", "#f39c12", "#d35400");
+        ctx.fillStyle = "#3498db"; // 사제복 번개 문양 띠
+        ctx.fillRect(-2, -12, 4, 10);
+
+        // 팔
+        drawCube3D(ctx, -11, -2, 5, 4, 8, "#f1c40f", "#f39c12", "#d35400");
+        drawCube3D(ctx, 11, -2, 5, 4, 8, "#f1c40f", "#f39c12", "#d35400");
+
+        // 왼손 마법책
+        drawCube3D(ctx, 14, -6, 8, 6, 10, "#9b59b6", "#8e44ad", "#6c5ce7");
+
+        // 머리 (피부톤 3D 큐브)
+        drawCube3D(ctx, 0, -18, 16, 10, 14, "#ffeaa7", "#fdcb6e", "#e17055");
+
+        // 할아버지 하얀 수염 & 눈썹 & 안경
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(-8, -18, 16, 10); // 수염
+        ctx.fillStyle = "#000";
+        ctx.fillRect(-5, -22, 3, 2); ctx.fillRect(2, -22, 3, 2); // 눈
+
+    } else {
+        // [기타 일반 2등신 3D 캐릭터 (머리, 몸통, 팔, 다리)]
+        // 다리
+        drawCube3D(ctx, -5, 8, 6, 4, 8, "#636e72", "#2d3436", "#1e272e");
+        drawCube3D(ctx, 5, 8, 6, 4, 8, "#636e72", "#2d3436", "#1e272e");
+
+        // 몸통
+        drawCube3D(ctx, 0, 0, 18, 10, 16, unit.color, "#2d3436", "#000");
+
+        // 팔
+        drawCube3D(ctx, -11, -2, 5, 4, 8, unit.color, "#2d3436", "#000");
+        drawCube3D(ctx, 11, -2, 5, 4, 8, unit.color, "#2d3436", "#000");
+
+        // 무기 표현
+        if (unit.skin === "axe_boy") {
+            drawCube3D(ctx, 14, -8, 4, 4, 16, "#7f8c8d", "#95a5a6", "#34495e"); // 3D 도끼
+        } else if (unit.skin === "archer") {
+            ctx.fillStyle = "#e67e22"; ctx.fillRect(-14, -14, 3, 16); // 3D 활
+        }
+
+        // 머리
+        drawCube3D(ctx, 0, -18, 16, 10, 14, "#ffeaa7", "#fdcb6e", "#e17055");
+
+        // 눈
+        ctx.fillStyle = "#000";
+        ctx.fillRect(-4, -22, 2, 2); ctx.fillRect(2, -22, 2, 2);
     }
 
     ctx.restore();
@@ -573,7 +672,7 @@ function drawUnitAvatar(ctx, unit, x, y, size) {
 function renderGame() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // 트랙
+    // 원형 바닥 트랙
     ctx.beginPath();
     ctx.arc(TRACK.centerX, TRACK.centerY, TRACK.radius, 0, Math.PI * 2);
     ctx.strokeStyle = "#23283d"; ctx.lineWidth = 28; ctx.stroke();
@@ -582,25 +681,24 @@ function renderGame() {
     ctx.strokeStyle = "#3b4366"; ctx.lineWidth = 2; ctx.setLineDash([8, 8]); ctx.stroke();
     ctx.setLineDash([]);
 
-    // 20칸 타일 (3마리 뭉쳤을 때 [조합] 버튼 텍스트 표시)
+    // 20칸 타일
     GRID_TILES.forEach((tile, idx) => {
         const unit = gameState.board[idx];
         ctx.fillStyle = "#151824"; ctx.strokeStyle = "#252b42"; ctx.lineWidth = 2;
         ctx.beginPath(); ctx.roundRect(tile.x, tile.y, tile.size, tile.size, 8); ctx.fill(); ctx.stroke();
 
         if (unit) {
-            drawUnitAvatar(ctx, unit, tile.x, tile.y, tile.size);
+            draw3DUnit(ctx, unit, tile.x, tile.y, tile.size);
             ctx.font = "bold 10px sans-serif"; ctx.fillStyle = "#fff"; ctx.textAlign = "center";
-            ctx.fillText(unit.name.substring(0, 7), tile.x + 35, tile.y + 60);
+            ctx.fillText(unit.name.substring(0, 7), tile.x + 35, tile.y + 64);
 
             if (unit.count > 1) {
                 ctx.fillStyle = "#ffcc00"; ctx.font = "bold 11px sans-serif";
                 ctx.fillText(`x${unit.count}`, tile.x + 55, tile.y + 15);
             }
 
-            // 3마리가 뭉쳤을 때 [ 🔄 조합 ] 버튼 오버레이 표시
             if (unit.count >= 3 && unit.grade !== "mythic" && unit.grade !== "legendary") {
-                ctx.fillStyle = "rgba(255, 100, 0, 0.85)";
+                ctx.fillStyle = "rgba(255, 100, 0, 0.88)";
                 ctx.beginPath(); ctx.roundRect(tile.x + 5, tile.y + 22, tile.size - 10, 22, 4); ctx.fill();
                 ctx.fillStyle = "#fff"; ctx.font = "bold 11px sans-serif";
                 ctx.fillText("🔄 조합하기", tile.x + 35, tile.y + 37);
@@ -620,14 +718,8 @@ function renderGame() {
         ctx.fillStyle = "#ff0000"; ctx.fillRect(ex - 16, ey - e.radius - 9, 32, 4);
         ctx.fillStyle = "#00ffcc"; ctx.fillRect(ex - 16, ey - e.radius - 9, 32 * hpPct, 4);
 
-        ctx.save();
-        ctx.translate(ex, ey);
-        ctx.fillStyle = e.color;
-        ctx.beginPath(); ctx.arc(0, 0, e.isBoss ? 24 : 14, 0, Math.PI*2); ctx.fill();
-        ctx.strokeStyle = e.isBoss ? "#ffd700" : "#fff"; ctx.lineWidth = e.isBoss ? 3 : 1; ctx.stroke();
-        ctx.fillStyle = "#ff3333";
-        ctx.fillRect(-4, -4, 3, 3); ctx.fillRect(2, -4, 3, 3);
-        ctx.restore();
+        // 3D 몬스터 큐브/원통
+        drawCube3D(ctx, ex, ey, e.isBoss ? 28 : 18, e.isBoss ? 16 : 10, e.isBoss ? 24 : 14, e.color, "#2d3436", "#111");
 
         if (e.isBoss) {
             ctx.font = "bold 11px sans-serif"; ctx.fillStyle = "#ff3366"; ctx.textAlign = "center";
@@ -635,7 +727,19 @@ function renderGame() {
         }
     });
 
-    // 근접 참격 이펙트
+    // [번개 사제 전용 직격 벼락 이펙트]
+    gameState.lightningEffects.forEach(l => {
+        ctx.save();
+        ctx.strokeStyle = "#f1c40f"; ctx.lineWidth = 5; ctx.shadowBlur = 15; ctx.shadowColor = "#ffff00";
+        ctx.beginPath();
+        ctx.moveTo(l.x + (Math.random()-0.5)*10, 0); // 하늘 위에서 직격
+        ctx.lineTo(l.x + (Math.random()-0.5)*15, l.y * 0.5);
+        ctx.lineTo(l.x, l.y); // 적 머리 위
+        ctx.stroke();
+        ctx.restore();
+    });
+
+    // 일반 참격 이펙트
     gameState.meleeEffects.forEach(m => {
         ctx.save();
         ctx.translate(m.x, m.y);
@@ -647,11 +751,10 @@ function renderGame() {
     // 투사체
     gameState.projectiles.forEach(p => {
         ctx.beginPath(); ctx.arc(p.x, p.y, 6, 0, Math.PI*2); ctx.fillStyle = p.color; ctx.fill();
-        ctx.strokeStyle = "#fff"; ctx.lineWidth = 1; ctx.stroke();
     });
 }
 
-// 타일 클릭 이벤트 (3마리 뭉쳤을 때 조합 실행)
+// 타일 터치/클릭 조합
 canvas.addEventListener("click", function(event) {
     const rect = canvas.getBoundingClientRect();
     const mouseX = event.clientX - rect.left;
