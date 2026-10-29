@@ -2,18 +2,17 @@ import streamlit as st
 import streamlit.components.v1 as components
 
 st.set_page_config(
-    page_title="운빨존많겜: 무한 실시간 디펜스",
+    page_title="운빨존많겜: 몬스터&디펜스 파라다이스",
     page_icon="🎲",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
 
-# Streamlit 앱 스타일링 (여백 최적화)
 st.markdown(
     """
     <style>
     .block-container {
-        padding-top: 1rem;
+        padding-top: 0.5rem;
         padding-bottom: 0rem;
         padding-left: 1rem;
         padding-right: 1rem;
@@ -25,7 +24,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# 60FPS HTML5 Canvas 기반의 완전한 실시간 모바일 디펜스 게임 엔진
+# 60FPS HTML5 Canvas + 고급 커스텀 아바타 디펜스 엔진
 html_game_code = """
 <!DOCTYPE html>
 <html lang="ko">
@@ -33,14 +32,14 @@ html_game_code = """
 <meta charset="UTF-8">
 <style>
     * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
-    body { background-color: #0d0e15; color: #fff; font-family: 'Pretendard', 'Noto Sans KR', sans-serif; overflow: hidden; }
+    body { background-color: #0b0c10; color: #fff; font-family: 'Pretendard', sans-serif; overflow: hidden; }
     
     #game-container {
         display: flex;
         flex-direction: row;
         width: 100vw;
         height: 100vh;
-        background: #12131c;
+        background: #0f1017;
     }
 
     #canvas-container {
@@ -50,25 +49,25 @@ html_game_code = """
         display: flex;
         justify-content: center;
         align-items: center;
-        background: #090a0f;
+        background: #07080c;
     }
 
     canvas {
-        border: 2px solid #2a2d3d;
+        border: 2px solid #222639;
         border-radius: 12px;
-        box-shadow: 0 0 30px rgba(0,0,0,0.8);
-        background: #141622;
+        box-shadow: 0 0 40px rgba(0,0,0,0.9);
+        background: #11131d;
     }
 
     #ui-panel {
         width: 420px;
         height: 100%;
-        background: #1a1c29;
-        border-left: 2px solid #2e3248;
+        background: #161824;
+        border-left: 2px solid #23273a;
         display: flex;
         flex-direction: column;
         padding: 15px;
-        gap: 12px;
+        gap: 10px;
         overflow-y: auto;
     }
 
@@ -76,63 +75,51 @@ html_game_code = """
         display: grid;
         grid-template-columns: repeat(2, 1fr);
         gap: 8px;
-        background: #232638;
-        padding: 12px;
-        border-radius: 10px;
-        border: 1px solid #363b57;
+        background: #1e2233;
+        padding: 10px;
+        border-radius: 8px;
+        border: 1px solid #2f354f;
     }
 
-    .status-item {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .status-label { font-size: 11px; color: #8e95b3; font-weight: bold; }
+    .status-item { display: flex; flex-direction: column; align-items: center; }
+    .status-label { font-size: 11px; color: #8c93b5; font-weight: bold; }
     .status-value { font-size: 18px; color: #ffd700; font-weight: 800; }
 
     .action-btn {
-        background: linear-gradient(135deg, #4a5270, #2f3448);
+        background: linear-gradient(135deg, #3d4463, #252a3f);
         color: white;
-        border: 1px solid #5d668c;
-        padding: 12px;
+        border: 1px solid #505982;
+        padding: 10px;
         border-radius: 8px;
         font-weight: bold;
-        font-size: 14px;
+        font-size: 13px;
         cursor: pointer;
-        transition: all 0.15s ease;
+        transition: all 0.1s ease;
         display: flex;
         justify-content: space-between;
         align-items: center;
     }
-    .action-btn:hover { background: linear-gradient(135deg, #5c668c, #3d435e); transform: translateY(-1px); }
+    .action-btn:hover { background: linear-gradient(135deg, #4d567d, #323852); transform: translateY(-1px); }
     .action-btn:active { transform: translateY(1px); }
-    .action-btn.primary { background: linear-gradient(135deg, #ff9900, #cc7a00); border-color: #ffaa22; color: #111; font-size: 16px; }
+    .action-btn.primary { background: linear-gradient(135deg, #ff8800, #dd6600); border-color: #ffa433; color: #fff; font-size: 15px; }
 
-    .section-title { font-size: 14px; font-weight: bold; color: #4deeea; margin-top: 5px; border-bottom: 1px solid #2e3248; padding-bottom: 4px; }
-
-    .gacha-rates { font-size: 11px; color: #a0a7cc; background: #12131a; padding: 8px; border-radius: 6px; }
-
-    /* 조합 공방 스타일 */
-    .tab-container { display: flex; gap: 5px; }
-    .tab-btn { flex: 1; padding: 8px; font-size: 12px; background: #25283b; border: none; color: #8890b5; border-radius: 6px; cursor: pointer; }
-    .tab-btn.active { background: #3b4263; color: #fff; font-weight: bold; }
+    .section-title { font-size: 13px; font-weight: bold; color: #00ffcc; margin-top: 2px; border-bottom: 1px solid #2a2f45; padding-bottom: 3px; }
+    .gacha-rates { font-size: 11px; color: #9da4c7; background: #0d0e15; padding: 6px; border-radius: 6px; text-align: center; }
 
     .recipe-card {
-        background: #212435;
-        border: 1px solid #323752;
-        padding: 8px;
+        background: #1a1e2d;
+        border: 1px solid #2b314d;
+        padding: 6px 10px;
         border-radius: 6px;
-        margin-bottom: 6px;
+        margin-bottom: 4px;
         display: flex;
         justify-content: space-between;
         align-items: center;
     }
-    .recipe-info { font-size: 12px; }
-    .recipe-name { font-weight: bold; color: #ff0055; }
-    .recipe-req { font-size: 10px; color: #9aa1c4; }
+    .recipe-info { font-size: 11px; }
+    .recipe-name { font-weight: bold; color: #ff3366; }
+    .recipe-req { font-size: 9px; color: #8d95bd; }
 
-    /* 모달 */
     #game-over-screen {
         position: absolute;
         top: 0; left: 0; width: 100%; height: 100%;
@@ -143,7 +130,7 @@ html_game_code = """
         align-items: center;
         z-index: 100;
     }
-    #game-over-screen h1 { font-size: 48px; color: #ff3366; text-shadow: 0 0 20px #ff0055; margin-bottom: 10px; }
+    #game-over-screen h1 { font-size: 46px; color: #ff2255; text-shadow: 0 0 20px #ff0044; margin-bottom: 10px; }
 </style>
 </head>
 <body>
@@ -153,50 +140,48 @@ html_game_code = """
         <canvas id="gameCanvas" width="750" height="750"></canvas>
         <div id="game-over-screen">
             <h1>GAME OVER</h1>
-            <p id="final-wave-text" style="font-size: 20px; color: #ccc; margin-bottom: 20px;">최대 웨이브: 1</p>
-            <button class="action-btn primary" onclick="resetGame()" style="width: 200px; justify-content: center;">🔄 다시 시작</button>
+            <p id="final-wave-text" style="font-size: 18px; color: #ddd; margin-bottom: 20px;">최종 웨이브: 1</p>
+            <button class="action-btn primary" onclick="resetGame()" style="width: 180px; justify-content: center;">🔄 다시 도전</button>
         </div>
     </div>
 
     <div id="ui-panel">
-        <h2 style="text-align: center; color: #ffcc00; font-size: 20px; letter-spacing: 1px;">🎲 운빨존많겜 60FPS</h2>
+        <h2 style="text-align: center; color: #ffcc00; font-size: 18px;">🎲 운빨존많겜 디펜스</h2>
         
         <div class="status-bar">
             <div class="status-item"><span class="status-label">보유 골드</span><span id="ui-gold" class="status-value">300 G</span></div>
             <div class="status-item"><span class="status-label">현재 웨이브</span><span id="ui-wave" class="status-value" style="color:#00ffcc;">1</span></div>
-            <div class="status-item"><span class="status-label">웨이브 남은시간</span><span id="ui-timer" class="status-value" style="color:#ff6699;">15.0초</span></div>
-            <div class="status-item"><span class="status-label">필드 적 / 최대</span><span id="ui-enemies" class="status-value" style="color:#ff4444;">0 / 100</span></div>
+            <div class="status-item"><span class="status-label">웨이브 타이머</span><span id="ui-timer" class="status-value" style="color:#ff6699;">15.0초</span></div>
+            <div class="status-item"><span class="status-label">적 / 최대한도</span><span id="ui-enemies" class="status-value" style="color:#ff4444;">0 / 100</span></div>
         </div>
 
         <button class="action-btn primary" onclick="drawUnit()">
-            <span>🎲 유닛 뽑기</span>
+            <span>🎲 유닛 뽑기 (동물/사람)</span>
             <span id="ui-gacha-cost">50 G</span>
         </button>
 
         <button class="action-btn" onclick="upgradeGachaRates()">
-            <span>📈 뽑기 확률 강화</span>
+            <span>📈 가챠 확률 강화</span>
             <span id="ui-rate-up-cost">80 G</span>
         </button>
 
-        <div class="gacha-rates" id="ui-rates-text">
-            일반: 75.0% | 희귀: 20.0% | 영웅: 4.0% | 전설: 1.0%
-        </div>
+        <div class="gacha-rates" id="ui-rates-text">일반: 75% | 희귀: 20% | 영웅: 4% | 전설: 1%</div>
 
         <div class="section-title">⚔️ 등급별 공격력 강화</div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
-            <button class="action-btn" onclick="upgradeClass('common')" style="font-size:11px;">일반 (Lv.<span id="lvl-common">1</span>)<br><span id="cost-common">30G</span></button>
-            <button class="action-btn" onclick="upgradeClass('rare')" style="font-size:11px; border-color:#1e90ff;">희귀 (Lv.<span id="lvl-rare">1</span>)<br><span id="cost-rare">60G</span></button>
-            <button class="action-btn" onclick="upgradeClass('epic')" style="font-size:11px; border-color:#9932cc;">영웅 (Lv.<span id="lvl-epic">1</span>)<br><span id="cost-epic">120G</span></button>
-            <button class="action-btn" onclick="upgradeClass('legendary')" style="font-size:11px; border-color:#ff8c00;">전설 (Lv.<span id="lvl-legendary">1</span>)<br><span id="cost-legendary">250G</span></button>
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px;">
+            <button class="action-btn" onclick="upgradeClass('common')" style="font-size:10px; flex-direction:column; padding:6px;">일반(Lv.<span id="lvl-common">1</span>)<br><span id="cost-common">30G</span></button>
+            <button class="action-btn" onclick="upgradeClass('rare')" style="font-size:10px; flex-direction:column; padding:6px; border-color:#1e90ff;">희귀(Lv.<span id="lvl-rare">1</span>)<br><span id="cost-rare">60G</span></button>
+            <button class="action-btn" onclick="upgradeClass('epic')" style="font-size:10px; flex-direction:column; padding:6px; border-color:#9932cc;">영웅(Lv.<span id="lvl-epic">1</span>)<br><span id="cost-epic">120G</span></button>
+            <button class="action-btn" onclick="upgradeClass('legendary')" style="font-size:10px; flex-direction:column; padding:6px; border-color:#ff8c00;">전설(Lv.<span id="lvl-legendary">1</span>)<br><span id="cost-legendary">250G</span></button>
         </div>
 
-        <div class="section-title">🧪 유닛 합성 & 신화 소환</div>
+        <div class="section-title">🧪 유닛 합성소</div>
         <div style="display: flex; gap: 6px;">
             <button class="action-btn" onclick="combineSub('common')" style="flex:1; font-size:11px; justify-content:center;">일반 3개 ➔ 희귀</button>
             <button class="action-btn" onclick="combineSub('rare')" style="flex:1; font-size:11px; justify-content:center;">희귀 3개 ➔ 영웅</button>
         </div>
 
-        <div class="section-title">👑 신화 소환 공방 (전설 필수)</div>
+        <div class="section-title">👑 신화 등급 강림 (전설 소모)</div>
         <div id="mythic-recipes-list"></div>
     </div>
 </div>
@@ -205,42 +190,41 @@ html_game_code = """
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-// --- [유닛 데이터베이스] ---
+// --- [유닛 데이터베이스: 동물 & 사람 형상 컨셉] ---
 const UNITS_DB = {
     common: [
-        { id: "c1", name: "돌멩이 골렘", atk: 15, color: "#a0a0a0", icon: "🪨" },
-        { id: "c2", name: "견습 궁수", atk: 18, color: "#8b5a2b", icon: "🏹" },
-        { id: "c3", name: "아기 슬라임", atk: 12, color: "#55efc4", icon: "🟢" },
-        { id: "c4", name: "꼬마 법사", atk: 22, color: "#74b9ff", icon: "🪄" }
+        { id: "c1", name: "돌맹이 꼬마전사", atk: 14, type: "human_boy", color: "#a0a0a0" },
+        { id: "c2", name: "견습 아기궁수", atk: 16, type: "elf_kid", color: "#d2b48c" },
+        { id: "c3", name: "초록 둥글 슬라임", atk: 11, type: "slime_pet", color: "#2ecc71" },
+        { id: "c4", name: "다람쥐 투사", atk: 18, type: "squirrel", color: "#e67e22" }
     ],
     rare: [
-        { id: "r1", name: "화염 마법사", atk: 60, color: "#ff7675", icon: "🔥" },
-        { id: "r2", name: "강철 기사", atk: 55, color: "#0984e3", icon: "🛡️" },
-        { id: "r3", name: "바람의 암살자", atk: 70, color: "#00b894", icon: "🗡️" },
-        { id: "r4", name: "번개 사제", atk: 65, color: "#fdcb6e", icon: "⚡" }
+        { id: "r1", name: "화염 마법사", atk: 55, type: "wizard", color: "#ff6b6b" },
+        { id: "r2", name: "철갑 라이거 騎士", atk: 50, type: "liger_knight", color: "#3498db" },
+        { id: "r3", name: "흑표범 암살자", atk: 65, type: "panther_assassin", color: "#2c3e50" },
+        { id: "r4", name: "번개 호랑이 사제", atk: 60, type: "tiger_priest", color: "#f1c40f" }
     ],
     epic: [
-        { id: "e1", name: "서리 여왕", atk: 220, color: "#00cec9", icon: "❄️" },
-        { id: "e2", name: "광전사 발키리", atk: 260, color: "#d63031", icon: "🪓" },
-        { id: "e3", name: "메카 캐논", atk: 240, color: "#e17055", icon: "🤖" },
-        { id: "e4", name: "암흑 소울킹", atk: 210, color: "#6c5ce7", icon: "💀" }
+        { id: "e1", name: "서리여왕 엘프", atk: 200, type: "ice_queen", color: "#00d2d3" },
+        { id: "e2", name: "광전사 울버린", atk: 240, type: "berserker", color: "#ff5252" },
+        { id: "e3", name: "메카 사이보그 사자", atk: 220, type: "mecha_lion", color: "#ff9f43" },
+        { id: "e4", name: "암흑 흑마법사", atk: 190, type: "dark_wizard", color: "#8854d0" }
     ],
     legendary: [
-        { id: "l1", name: "천공 드래곤", atk: 850, color: "#fd79a8", icon: "🐉" },
-        { id: "l2", name: "지옥 파괴신", atk: 950, color: "#ff4757", icon: "👹" },
-        { id: "l3", name: "시간 수호자", atk: 800, color: "#eccc68", icon: "⏳" },
-        { id: "l4", name: "빛의 성심주", atk: 900, color: "#ffffff", icon: "🌟" }
+        { id: "l1", name: "천공의 황금 드래곤", atk: 800, type: "golden_dragon", color: "#fffa65" },
+        { id: "l2", name: "지옥의 아수라왕", atk: 900, type: "asura_demon", color: "#ff3838" },
+        { id: "l3", name: "시간의 수호자 울프", atk: 750, type: "time_wolf", color: "#48dbfb" },
+        { id: "l4", name: "빛의 성기사 판다", atk: 850, type: "holy_panda", color: "#ffffff" }
     ],
     mythic: [
-        { id: "m1", name: "🔥 혼돈 종말자", atk: 4000, color: "#ff0055", icon: "🌌", req: "전설 1개 소모" },
-        { id: "m2", name: "⚡ 제우스 현신", atk: 4500, color: "#ffff00", icon: "🌩️", req: "전설 1개 소모" },
-        { id: "m3", name: "❄️ 절대영도 여신", atk: 3800, color: "#00ffff", icon: "🧊", req: "전설 1개 소모" },
-        { id: "m4", name: "💀 심연의 군주", atk: 5000, color: "#a000ff", icon: "👑", req: "전설 1개 소모" },
-        { id: "m5", name: "🌟 창조의 스피릿", atk: 6000, color: "#ffffff", icon: "☸️", req: "전설 1개 소모" }
+        { id: "m1", name: "🔥 혼돈의 마신 드래곤", atk: 3800, type: "mythic_dragon", color: "#ff0055", req: "전설 1개 소모" },
+        { id: "m2", name: "⚡ 제우스 라이거 갓", atk: 4300, type: "mythic_liger", color: "#ffff00", req: "전설 1개 소모" },
+        { id: "m3", name: "❄️ 절대영도 빙원 여신", atk: 3600, type: "mythic_queen", color: "#00ffff", req: "전설 1개 소모" },
+        { id: "m4", name: "💀 심연의 아수라 군주", atk: 4800, type: "mythic_asura", color: "#9b59b6", req: "전설 1개 소모" },
+        { id: "m5", name: "🌟 창조의 신성 백호", atk: 5800, type: "mythic_tiger", color: "#ffffff", req: "전설 1개 소모" }
     ]
 };
 
-// --- [게임 글로벌 상태] ---
 let gameState = {
     gold: 300,
     wave: 1,
@@ -251,7 +235,7 @@ let gameState = {
     rateCost: 80,
     rates: { common: 75.0, rare: 20.0, epic: 4.0, legendary: 1.0 },
     upgrades: { common: 1, rare: 1, epic: 1, legendary: 1 },
-    board: new Array(20).fill(null), // 20칸 필드
+    board: new Array(20).fill(null),
     enemies: [],
     projectiles: [],
     particles: [],
@@ -259,28 +243,17 @@ let gameState = {
     lastTime: performance.now()
 };
 
-// 트랙 정보 (원형 트랙: 중심 (375,375), 반지름 300)
-const TRACK = {
-    centerX: 375,
-    centerY: 375,
-    radius: 290
-};
+const TRACK = { centerX: 375, centerY: 375, radius: 290 };
 
-// 타일 그리드 배치 (5행 4열 = 20칸, 중앙 240x240 영역)
 const GRID_TILES = [];
 const rows = 5, cols = 4;
 const startX = 225, startY = 200, tileSize = 70, gap = 10;
 for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
-        GRID_TILES.push({
-            x: startX + c * (tileSize + gap),
-            y: startY + r * (tileSize + gap),
-            size: tileSize
-        });
+        GRID_TILES.push({ x: startX + c * (tileSize + gap), y: startY + r * (tileSize + gap), size: tileSize });
     }
 }
 
-// 초기화
 function initGame() {
     gameState.gold = 300;
     gameState.wave = 1;
@@ -297,34 +270,43 @@ function initGame() {
     renderMythicRecipes();
 }
 
-// --- [스폰 & 몬스터 로직] ---
+// --- [몬스터 생성 (오거/좀비 및 보스)] ---
 function spawnEnemy() {
     const isBoss = (gameState.wave % 5 === 0) && (gameState.enemies.filter(e => e.isBoss).length === 0);
     const baseHp = 100 * Math.pow(1.28, gameState.wave - 1);
     
+    // 몬스터 외형 타입 분류 (오거, 좀비, 보스 아머오거/네크로맨서)
+    const mTypes = ["zombie", "orc_grunt", "skeleton", "mutant_ogre"];
+    const chosenType = isBoss ? (gameState.wave % 10 === 0 ? "boss_necromancer" : "boss_ogre_lord") : mTypes[Math.floor(Math.random() * mTypes.length)];
+
     gameState.enemies.push({
         id: Math.random(),
-        angle: 0, // 0 라디안에서 시작 (원형 이동)
-        speed: isBoss ? 0.4 : 0.7,
-        hp: isBoss ? baseHp * 8 : baseHp,
-        maxHp: isBoss ? baseHp * 8 : baseHp,
+        angle: 0,
+        speed: isBoss ? 0.38 : (chosenType === "skeleton" ? 0.85 : 0.6),
+        hp: isBoss ? baseHp * 9 : baseHp,
+        maxHp: isBoss ? baseHp * 9 : baseHp,
         isBoss: isBoss,
-        radius: isBoss ? 26 : 14,
-        color: isBoss ? "#ff0055" : (gameState.wave % 5 === 0 ? "#ff9900" : "#a29bfe")
+        type: chosenType,
+        radius: isBoss ? 28 : 15,
+        color: isBoss ? "#ff0055" : (chosenType === "zombie" ? "#55efc4" : "#e17055")
     });
 }
 
-// --- [가챠 & 강화 시스템] ---
+// --- [뽑기 및 안전 검증] ---
 function drawUnit() {
-    if (gameState.gold < gameState.gachaCost) return alert("골드가 부족합니다!");
+    if (gameState.gold < gameState.gachaCost) {
+        alert("❌ 골드가 부족합니다! 적을 처치하여 골드를 모으세요!");
+        return;
+    }
     
-    // 빈 칸 찾기
     let emptyIdx = gameState.board.findIndex(slot => slot === null);
-    if (emptyIdx === -1) return alert("필드 20칸이 가득 찼습니다! 유닛을 합성하세요.");
+    if (emptyIdx === -1) {
+        alert("⚠️ 필드 20칸이 가득 찼습니다! 유닛을 합성하거나 해제하세요.");
+        return;
+    }
 
     gameState.gold -= gameState.gachaCost;
 
-    // 확률 계산
     const rand = Math.random() * 100;
     let grade = "common";
     if (rand < gameState.rates.legendary) grade = "legendary";
@@ -338,28 +320,28 @@ function drawUnit() {
         grade: grade,
         count: 1,
         lastAttack: 0,
-        attackSpeed: 1.0 // 초당 공격
+        attackSpeed: 1.1
     };
 
     updateUI();
 }
 
 function upgradeGachaRates() {
-    if (gameState.gold < gameState.rateCost) return alert("골드가 부족합니다!");
-    if (gameState.rates.common <= 20) return alert("최대 강화 단계입니다!");
+    if (gameState.gold < gameState.rateCost) { alert("골드가 부족합니다!"); return; }
+    if (gameState.rates.common <= 20) { alert("최대 확률입니다!"); return; }
 
     gameState.gold -= gameState.rateCost;
     gameState.rates.common -= 5;
     gameState.rates.rare += 3;
     gameState.rates.epic += 1.5;
     gameState.rates.legendary += 0.5;
-
     updateUI();
 }
 
 function upgradeClass(grade) {
-    const cost = { common: 30, rare: 60, epic: 120, legendary: 250 }[grade] * gameState.upgrades[grade];
-    if (gameState.gold < cost) return alert("골드가 부족합니다!");
+    const costMap = { common: 30, rare: 60, epic: 120, legendary: 250 };
+    const cost = costMap[grade] * gameState.upgrades[grade];
+    if (gameState.gold < cost) { alert("골드가 부족합니다!"); return; }
 
     gameState.gold -= cost;
     gameState.upgrades[grade]++;
@@ -375,9 +357,8 @@ function combineSub(grade) {
         }
     });
 
-    if (matches.length < 3) return alert(`${grade.toUpperCase()} 유닛이 3마리 이상 필요합니다!`);
+    if (matches.length < 3) { alert(`${grade.toUpperCase()} 유닛이 3마리 이상 필요합니다!`); return; }
 
-    // 3마리 제거
     let removed = 0;
     for (let idx of matches) {
         if (removed >= 3) break;
@@ -386,7 +367,6 @@ function combineSub(grade) {
         removed++;
     }
 
-    // 새 희귀/영웅 배치
     let emptyIdx = gameState.board.findIndex(slot => slot === null);
     const template = UNITS_DB[targetGrade][Math.floor(Math.random() * UNITS_DB[targetGrade].length)];
     gameState.board[emptyIdx] = {
@@ -394,17 +374,15 @@ function combineSub(grade) {
         grade: targetGrade,
         count: 1,
         lastAttack: 0,
-        attackSpeed: 1.0
+        attackSpeed: 1.1
     };
-
     updateUI();
 }
 
 function summonMythic(mIndex) {
     const legIdx = gameState.board.findIndex(slot => slot && slot.grade === "legendary");
-    if (legIdx === -1) return alert("소환 재료인 [전설 유닛]이 필드에 최소 1개 필요합니다!");
+    if (legIdx === -1) { alert("⚠️ 소환 재료인 [전설 유닛]이 필드에 필요합니다!"); return; }
 
-    // 전설 유닛 1개 소모
     gameState.board[legIdx].count--;
     if (gameState.board[legIdx].count === 0) gameState.board[legIdx] = null;
 
@@ -419,19 +397,6 @@ function summonMythic(mIndex) {
         lastAttack: 0,
         attackSpeed: 1.5
     };
-
-    // 폭죽 효과
-    for(let i=0; i<30; i++) {
-        gameState.particles.push({
-            x: GRID_TILES[emptyIdx].x + 35,
-            y: GRID_TILES[emptyIdx].y + 35,
-            vx: (Math.random() - 0.5) * 8,
-            vy: (Math.random() - 0.5) * 8,
-            color: template.color,
-            life: 1.0
-        });
-    }
-
     updateUI();
 }
 
@@ -442,16 +407,16 @@ function renderMythicRecipes() {
         container.innerHTML += `
             <div class="recipe-card">
                 <div class="recipe-info">
-                    <span class="recipe-name">${m.icon} ${m.name}</span>
+                    <span class="recipe-name">${m.name}</span>
                     <div class="recipe-req">ATK: ${m.atk} | ${m.req}</div>
                 </div>
-                <button class="action-btn" style="padding:4px 8px; font-size:11px; border-color:#ff0055;" onclick="summonMythic(${idx})">소환</button>
+                <button class="action-btn" style="padding:4px 8px; font-size:11px; border-color:#ff0055;" onclick="summonMythic(${idx})">강림</button>
             </div>
         `;
     });
 }
 
-// --- [60FPS 메인 게임 루프] ---
+// --- [60FPS 루프 및 그래픽 렌더러] ---
 function gameLoop(now) {
     const dt = (now - gameState.lastTime) / 1000;
     gameState.lastTime = now;
@@ -460,244 +425,223 @@ function gameLoop(now) {
         updateGame(dt);
     }
     renderGame();
-
     requestAnimationFrame(gameLoop);
 }
 
 function updateGame(dt) {
-    // 1. 웨이브 타이머
     gameState.waveTimer -= dt;
     if (gameState.waveTimer <= 0) {
         gameState.wave++;
         gameState.waveTimer = 15.0;
     }
 
-    // 2. 몬스터 스폰 (웨이브 지속적으로 일정간격 스폰)
     gameState.spawnTimer += dt;
-    const spawnInterval = Math.max(0.4, 1.2 - gameState.wave * 0.03);
+    const spawnInterval = Math.max(0.35, 1.2 - gameState.wave * 0.03);
     if (gameState.spawnTimer >= spawnInterval) {
         gameState.spawnTimer = 0;
         spawnEnemy();
     }
 
-    // 3. 몬스터 위치 이동 (원형 궤도 돌기)
-    gameState.enemies.forEach(e => {
-        e.angle += (e.speed * dt); // 라디안 이동
-    });
+    gameState.enemies.forEach(e => { e.angle += (e.speed * dt); });
 
-    // 4. 게임 오버 조건 체크 (적 100명 이상)
     if (gameState.enemies.length >= gameState.maxEnemies) {
         gameState.gameOver = true;
-        document.getElementById("final-wave-text").innerText = `최대 달성 웨이브: ${gameState.wave} 단계`;
+        document.getElementById("final-wave-text").innerText = `최종 달성 웨이브: ${gameState.wave} 단계`;
         document.getElementById("game-over-screen").style.display = "flex";
     }
 
-    // 5. 유닛 공격 타겟팅 및 투사체 발생
+    // 공격 및 투사체 발사
     const currentTime = performance.now() / 1000;
     gameState.board.forEach((slot, tileIdx) => {
         if (!slot) return;
 
         if (currentTime - slot.lastAttack >= (1 / slot.attackSpeed)) {
-            // 사거리 내 가장 가까운/앞선 적 탐색
             const tile = GRID_TILES[tileIdx];
             const ux = tile.x + 35, uy = tile.y + 35;
-
             let closestEnemy = null;
-            let minDist = 320; // 공격 사거리
+            let minDist = 320;
 
             gameState.enemies.forEach(e => {
                 const ex = TRACK.centerX + Math.cos(e.angle) * TRACK.radius;
                 const ey = TRACK.centerY + Math.sin(e.angle) * TRACK.radius;
                 const dist = Math.hypot(ex - ux, ey - uy);
-                if (dist < minDist) {
-                    minDist = dist;
-                    closestEnemy = e;
-                }
+                if (dist < minDist) { minDist = dist; closestEnemy = e; }
             });
 
             if (closestEnemy) {
                 slot.lastAttack = currentTime;
-                // 공격 투사체 발사
                 const upLvl = gameState.upgrades[slot.grade] || 1;
                 const finalAtk = slot.atk * slot.count * (1 + (upLvl - 1) * 0.25);
 
                 gameState.projectiles.push({
-                    x: ux, y: uy,
-                    target: closestEnemy,
-                    damage: finalAtk,
-                    color: slot.color,
-                    speed: 600
+                    x: ux, y: uy, target: closestEnemy, damage: finalAtk, color: slot.color, speed: 650
                 });
             }
         }
     });
 
-    // 6. 투사체 이동 및 적 피격
+    // 투사체 처리
     for (let i = gameState.projectiles.length - 1; i >= 0; i--) {
         const p = gameState.projectiles[i];
-        if (!gameState.enemies.includes(p.target)) {
-            gameState.projectiles.splice(i, 1);
-            continue;
-        }
+        if (!gameState.enemies.includes(p.target)) { gameState.projectiles.splice(i, 1); continue; }
 
         const ex = TRACK.centerX + Math.cos(p.target.angle) * TRACK.radius;
         const ey = TRACK.centerY + Math.sin(p.target.angle) * TRACK.radius;
-        const dx = ex - p.x;
-        const dy = ey - p.y;
+        const dx = ex - p.x, dy = ey - p.y;
         const dist = Math.hypot(dx, dy);
 
         if (dist < 15) {
-            // 히트!
             p.target.hp -= p.damage;
-            
-            // 피격 이펙트 입자
-            for(let k=0; k<5; k++) {
-                gameState.particles.push({
-                    x: ex, y: ey,
-                    vx: (Math.random() - 0.5) * 4,
-                    vy: (Math.random() - 0.5) * 4,
-                    color: p.color,
-                    life: 0.4
-                });
-            }
-
-            // 적 사망 처리
             if (p.target.hp <= 0) {
-                const killReward = p.target.isBoss ? 150 : 12;
-                gameState.gold += killReward;
+                gameState.gold += p.target.isBoss ? 160 : 12;
                 const eIdx = gameState.enemies.indexOf(p.target);
                 if (eIdx !== -1) gameState.enemies.splice(eIdx, 1);
             }
-
             gameState.projectiles.splice(i, 1);
         } else {
             p.x += (dx / dist) * p.speed * dt;
             p.y += (dy / dist) * p.speed * dt;
         }
     }
-
-    // 7. 입자(파티클) 업데이트
-    for (let i = gameState.particles.length - 1; i >= 0; i--) {
-        const pt = gameState.particles[i];
-        pt.x += pt.vx;
-        pt.y += pt.vy;
-        pt.life -= dt * 2;
-        if (pt.life <= 0) gameState.particles.splice(i, 1);
-    }
-
     updateUI();
 }
 
-// --- [60FPS 캔버스 렌더링] ---
+// --- [고급 캐릭터 및 몬스터 캔버스 드로잉 아티스트 루틴] ---
+function drawMonster(ctx, e, x, y) {
+    ctx.save();
+    ctx.translate(x, y);
+
+    if (e.type === "zombie") {
+        // 좀비 아바타 (초록 피부, 넝마 옷)
+        ctx.fillStyle = "#55efc4";
+        ctx.beginPath(); ctx.arc(0, -2, 11, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = "#ff3333"; // 눈
+        ctx.fillRect(-4, -5, 3, 3); ctx.fillRect(2, -5, 3, 3);
+        ctx.fillStyle = "#2d3436"; // 누더기 몸통
+        ctx.fillRect(-8, 8, 16, 12);
+    } else if (e.type === "orc_grunt" || e.type === "mutant_ogre") {
+        // 오거/오크 아바타 (송곳니, 녹갈색 근육)
+        ctx.fillStyle = e.type === "mutant_ogre" ? "#81ecec" : "#e17055";
+        ctx.beginPath(); ctx.arc(0, -2, e.isBoss ? 22 : 14, 0, Math.PI*2); ctx.fill();
+        // 뿔 / 송곳니
+        ctx.fillStyle = "#fff";
+        ctx.beginPath(); ctx.moveTo(-6, 8); ctx.lineTo(-10, 14); ctx.lineTo(-2, 10); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(6, 8); ctx.lineTo(10, 14); ctx.lineTo(2, 10); ctx.fill();
+    } else if (e.isBoss) {
+        // 보스 아바타 (왕관 쓴 네크로맨서 / 오거 수장)
+        ctx.fillStyle = "#ff0055";
+        ctx.beginPath(); ctx.arc(0, 0, 24, 0, Math.PI*2); ctx.fill();
+        ctx.strokeStyle = "#ffd700"; ctx.lineWidth = 3; ctx.stroke();
+        // 왕관
+        ctx.fillStyle = "#ffd700";
+        ctx.beginPath(); ctx.moveTo(-10, -20); ctx.lineTo(-15, -30); ctx.lineTo(0, -22); ctx.lineTo(15, -30); ctx.lineTo(10, -20); ctx.fill();
+    } else {
+        // 해골/기본 적
+        ctx.fillStyle = "#dfe6e9";
+        ctx.beginPath(); ctx.arc(0, 0, 12, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = "#000";
+        ctx.fillRect(-4, -4, 3, 3); ctx.fillRect(2, -4, 3, 3);
+    }
+    ctx.restore();
+}
+
+function drawUnitAvatar(ctx, unit, x, y, size) {
+    ctx.save();
+    ctx.translate(x + size/2, y + size/2);
+
+    // 등급별 오라
+    ctx.fillStyle = unit.color + "33";
+    ctx.beginPath(); ctx.arc(0, 0, size/2 - 4, 0, Math.PI*2); ctx.fill();
+
+    // 사람/동물 형상 프로그래밍 아트
+    if (unit.grade === "common") {
+        // 귀여운 동물/꼬마 형상
+        ctx.fillStyle = unit.color;
+        ctx.beginPath(); ctx.arc(0, 2, 16, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = "#fff";
+        ctx.fillRect(-5, -3, 4, 4); ctx.fillRect(2, -3, 4, 4);
+    } else if (unit.grade === "rare") {
+        // 무협/마법사 사람 형상
+        ctx.fillStyle = unit.color;
+        ctx.beginPath(); ctx.arc(0, -4, 14, 0, Math.PI*2); ctx.fill();
+        // 모자/마법 로브
+        ctx.fillStyle = "#ffffff";
+        ctx.beginPath(); ctx.moveTo(0, -26); ctx.lineTo(-12, -10); ctx.lineTo(12, -10); ctx.fill();
+    } else if (unit.grade === "epic") {
+        // 강력한 엘프/전사 형상
+        ctx.fillStyle = unit.color;
+        ctx.beginPath(); ctx.arc(0, 0, 18, 0, Math.PI*2); ctx.fill();
+        ctx.strokeStyle = "#fff"; ctx.lineWidth = 2; ctx.stroke();
+    } else if (unit.grade === "legendary") {
+        // 전설의 드래곤/수호자 형상
+        ctx.fillStyle = unit.color;
+        ctx.beginPath(); ctx.arc(0, 0, 22, 0, Math.PI*2); ctx.fill();
+        ctx.shadowBlur = 12; ctx.shadowColor = unit.color;
+        ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 3; ctx.stroke();
+    } else {
+        // 신화 등급 강림 형상 (오라 번쩍임)
+        ctx.fillStyle = unit.color;
+        ctx.beginPath(); ctx.arc(0, 0, 25, 0, Math.PI*2); ctx.fill();
+        ctx.shadowBlur = 20; ctx.shadowColor = "#ff0055";
+        ctx.strokeStyle = "#ffd700"; ctx.lineWidth = 4; ctx.stroke();
+    }
+
+    ctx.restore();
+}
+
 function renderGame() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // 1. 원형 몬스터 이동 트랙 그리기
+    // 원형 트랙
     ctx.beginPath();
     ctx.arc(TRACK.centerX, TRACK.centerY, TRACK.radius, 0, Math.PI * 2);
-    ctx.strokeStyle = "#2e3450";
-    ctx.lineWidth = 28;
-    ctx.stroke();
-
+    ctx.strokeStyle = "#23283d"; ctx.lineWidth = 28; ctx.stroke();
     ctx.beginPath();
     ctx.arc(TRACK.centerX, TRACK.centerY, TRACK.radius, 0, Math.PI * 2);
-    ctx.strokeStyle = "#434b73";
-    ctx.lineWidth = 2;
-    ctx.setLineDash([8, 8]);
-    ctx.stroke();
+    ctx.strokeStyle = "#3b4366"; ctx.lineWidth = 2; ctx.setLineDash([8, 8]); ctx.stroke();
     ctx.setLineDash([]);
 
-    // 2. 20칸 필드 타일 그리기
+    // 20칸 타일
     GRID_TILES.forEach((tile, idx) => {
         const unit = gameState.board[idx];
-
-        ctx.fillStyle = "#1b1d2e";
-        ctx.strokeStyle = "#2c314a";
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.roundRect(tile.x, tile.y, tile.size, tile.size, 8);
-        ctx.fill();
-        ctx.stroke();
+        ctx.fillStyle = "#151824"; ctx.strokeStyle = "#252b42"; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.roundRect(tile.x, tile.y, tile.size, tile.size, 8); ctx.fill(); ctx.stroke();
 
         if (unit) {
-            // 유닛 후광 및 테두리
-            ctx.fillStyle = unit.color + "22";
-            ctx.beginPath();
-            ctx.roundRect(tile.x+2, tile.y+2, tile.size-4, tile.size-4, 6);
-            ctx.fill();
-
-            ctx.strokeStyle = unit.color;
-            ctx.lineWidth = 2;
-            ctx.stroke();
-
-            // 유닛 아이콘 & 이름
-            ctx.font = "24px sans-serif";
-            ctx.textAlign = "center";
-            ctx.textBaseline = "middle";
-            ctx.fillText(unit.icon, tile.x + 35, tile.y + 28);
-
-            // 유닛 중첩 수 및 이름
-            ctx.font = "bold 10px sans-serif";
-            ctx.fillStyle = "#ffffff";
-            ctx.fillText(`${unit.name}`, tile.x + 35, tile.y + 52);
+            drawUnitAvatar(ctx, unit, tile.x, tile.y, tile.size);
+            ctx.font = "bold 10px sans-serif"; ctx.fillStyle = "#fff"; ctx.textAlign = "center";
+            ctx.fillText(unit.name.substring(0, 7), tile.x + 35, tile.y + 60);
 
             if (unit.count > 1) {
-                ctx.fillStyle = "#ffcc00";
-                ctx.font = "bold 11px sans-serif";
-                ctx.fillText(`x${unit.count}`, tile.x + 60, tile.y + 15);
+                ctx.fillStyle = "#ffcc00"; ctx.font = "bold 11px sans-serif";
+                ctx.fillText(`x${unit.count}`, tile.x + 55, tile.y + 15);
             }
         } else {
-            ctx.font = "10px sans-serif";
-            ctx.fillStyle = "#484f73";
-            ctx.textAlign = "center";
+            ctx.font = "10px sans-serif"; ctx.fillStyle = "#3f466b"; ctx.textAlign = "center";
             ctx.fillText(`#${idx+1}`, tile.x + 35, tile.y + 38);
         }
     });
 
-    // 3. 몬스터 렌더링
+    // 몬스터 렌더링
     gameState.enemies.forEach(e => {
         const ex = TRACK.centerX + Math.cos(e.angle) * TRACK.radius;
         const ey = TRACK.centerY + Math.sin(e.angle) * TRACK.radius;
 
-        // 몬스터 체력바
-        const hpPercent = Math.max(0, e.hp / e.maxHp);
-        ctx.fillStyle = "#ff0000";
-        ctx.fillRect(ex - 15, ey - e.radius - 8, 30, 4);
-        ctx.fillStyle = "#00ffcc";
-        ctx.fillRect(ex - 15, ey - e.radius - 8, 30 * hpPercent, 4);
+        const hpPct = Math.max(0, e.hp / e.maxHp);
+        ctx.fillStyle = "#ff0000"; ctx.fillRect(ex - 16, ey - e.radius - 9, 32, 4);
+        ctx.fillStyle = "#00ffcc"; ctx.fillRect(ex - 16, ey - e.radius - 9, 32 * hpPct, 4);
 
-        // 몬스터 바디
-        ctx.beginPath();
-        ctx.arc(ex, ey, e.radius, 0, Math.PI * 2);
-        ctx.fillStyle = e.color;
-        ctx.fill();
-        ctx.strokeStyle = "#fff";
-        ctx.lineWidth = e.isBoss ? 3 : 1;
-        ctx.stroke();
+        drawMonster(ctx, e, ex, ey);
 
-        // 보스 표시
         if (e.isBoss) {
-            ctx.font = "bold 12px sans-serif";
-            ctx.fillStyle = "#ffffff";
-            ctx.textAlign = "center";
-            ctx.fillText("👑BOSS", ex, ey - e.radius - 12);
+            ctx.font = "bold 11px sans-serif"; ctx.fillStyle = "#ff3366"; ctx.textAlign = "center";
+            ctx.fillText("👑 BOSS", ex, ey - e.radius - 14);
         }
     });
 
-    // 4. 공격 투사체 렌더링
+    // 투사체
     gameState.projectiles.forEach(p => {
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, 5, 0, Math.PI * 2);
-        ctx.fillStyle = p.color;
-        ctx.fill();
-    });
-
-    // 5. 파티클 이펙트
-    gameState.particles.forEach(pt => {
-        ctx.beginPath();
-        ctx.arc(pt.x, pt.y, 3 * pt.life, 0, Math.PI * 2);
-        ctx.fillStyle = pt.color;
-        ctx.fill();
+        ctx.beginPath(); ctx.arc(p.x, p.y, 5, 0, Math.PI*2); ctx.fillStyle = p.color; ctx.fill();
     });
 }
 
@@ -708,19 +652,15 @@ function updateUI() {
     document.getElementById("ui-enemies").innerText = `${gameState.enemies.length} / ${gameState.maxEnemies}`;
 
     const r = gameState.rates;
-    document.getElementById("ui-rates-text").innerText = 
-        `일반: ${r.common.toFixed(1)}% | 희귀: ${r.rare.toFixed(1)}% | 영웅: ${r.epic.toFixed(1)}% | 전설: ${r.legendary.toFixed(1)}%`;
+    document.getElementById("ui-rates-text").innerText = `일반: ${r.common.toFixed(0)}% | 희귀: ${r.rare.toFixed(0)}% | 영웅: ${r.epic.toFixed(0)}% | 전설: ${r.legendary.toFixed(1)}%`;
 
     ["common", "rare", "epic", "legendary"].forEach(g => {
         document.getElementById(`lvl-${g}`).innerText = gameState.upgrades[g];
     });
 }
 
-function resetGame() {
-    initGame();
-}
+function resetGame() { initGame(); }
 
-// 게임 실행
 initGame();
 requestAnimationFrame(gameLoop);
 </script>
@@ -728,5 +668,4 @@ requestAnimationFrame(gameLoop);
 </html>
 """
 
-# Streamlit 내부에 60FPS 모바일 게임 캔버스 삽입
 components.html(html_game_code, height=780, scrolling=False)
